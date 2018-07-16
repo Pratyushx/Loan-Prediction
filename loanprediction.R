@@ -8,11 +8,11 @@ test <- read.csv("test.csv",na.strings = c("","NaN"," "))
 test$Loan_Status <- as.factor("NA")
 
 
-#Combining training and test set 
+# Combining training and test set 
 df.loan <- rbind(train[,2:13],test[,2:13])
 
 
-#Missing values Summary
+# Missing values Summary
 Variable <- colnames(df.loan)
 NA_count <- sapply(df.loan, function(x) sum(is.na(x)))
 miss_summ <- data.frame(Variable,NA_count,row.names = NULL)
@@ -20,11 +20,11 @@ miss_summ %>%
   arrange(desc(NA_count))
 
 
-#Treatment of missing values
+# Treatment of missing values
 df.loan$Self_Employed[is.na(df.loan$Self_Employed)] = as.factor("No")
 
 
-#Treatment of missing values in Loan Amount Term
+# Treatment of missing values in Loan Amount Term
 df.loan$Loan_Amount_Term[is.na(df.loan$Loan_Amount_Term)] = 360
 
 df.loan 
@@ -32,7 +32,7 @@ df.loan
   summarise(GroupMedian = median(LoanAmount,na.rm = TRUE))
 
 
-#imputing missing loan amount using sub categories
+# imputing missing loan amount using sub categories
 ind <- which(is.na(df.loan$LoanAmount))
 df.loan[ind,]$LoanAmount[df.loan[ind,]$Education == "Graduate" & df.loan[ind,]$Self_Employed == "No"] <- 130
 df.loan[ind,]$LoanAmount[df.loan[ind,]$Education == "Graduate" & df.loan[ind,]$Self_Employed == "Yes"] <- 150
@@ -40,21 +40,21 @@ df.loan[ind,]$LoanAmount[df.loan[ind,]$Education == "Not Graduate" & df.loan[ind
 df.loan[ind,]$LoanAmount[df.loan[ind,]$Education == "Not Graduate" & df.loan[ind,]$Self_Employed == "Yes"] <- 130
 
 
-#Credit History is a high impact variable
+# Credit History is a high impact variable
 df.loan$Credit_History = as.character(df.loan$Credit_History)
 df.loan$Credit_History[is.na(df.loan$Credit_History)] = "Not Available"
 df.loan$Credit_History = as.factor(df.loan$Credit_History)
 
 
-#Married Missing Values
+# Married Missing Values
 df.loan$Married[is.na(df.loan$Married)] = as.factor("Yes")
 
 
-#Gender Missing Values
+# Gender Missing Values
 df.loan$Gender[is.na(df.loan$Gender)] = as.factor("Male")
 
 
-#Dependents Missing Values
+# Dependents Missing Values
 df.loan$Dependents[is.na(df.loan$Dependents)] = as.factor("0")
 
 cat("There are total", sum(is.na(df.loan)), "missing values in the dataset")
@@ -67,7 +67,7 @@ df.loan <- df.loan[,!(names(df.loan)) %in% c("ApplicantIncome","CoapplicantIncom
 
 
 
-#Applying Logistic Regression Model
+# Applying Logistic Regression Model
 train_up<- df.loan[1:614,]
 test <- df.loan[615:981,]
 model <- glm(train_up$Loan_Status~.,family = binomial(link = 'logit'),data = train_up, maxit = 100)
@@ -75,7 +75,7 @@ summary(model)
 
 
 
-#Fitting the Model
+# Fitting the Model
 fitted_results <- predict(model, newdata=test, type="response")
 fitted_results <- ifelse(fitted_results > 0.5,"Y","N")
 test_up <- read.csv("test.csv", stringsAsFactors = TRUE)
